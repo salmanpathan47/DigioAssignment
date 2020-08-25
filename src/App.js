@@ -3,7 +3,7 @@ import './App.css';
 
 //components
 import Login from './components/login'
-import Aadhar from "./components/aadhar"
+import Currency from "./components/Currency"
 //routes
 import {BrowserRouter as Router,Route} from "react-router-dom"
 
@@ -14,8 +14,8 @@ function App() {
      <Route exact path="/">
      <Login/>
       </Route>
-     <Route path="/aadhar">
-        <Aadhar  />
+     <Route path="/currency">
+        <Currency  />
       </Route>
      </Router>
    </div>

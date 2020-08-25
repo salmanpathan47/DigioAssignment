@@ -3,6 +3,7 @@ import React from 'react';
 //link from route
 import {Link} from "react-router-dom"
 //import css
+
 import './login.css'
 export default class Login extends React.Component{
     //const history=useHistory();
@@ -11,17 +12,59 @@ export default class Login extends React.Component{
   
       this.state = {
         email: '',
-        validMail:true
+        validMail:true,
+        isSignedIn: null
       }
     }
-    handleChange=(e)=>{
-      this.setState({email: e.target.value})
-      const pattern = /[a-zA-Z0-9]+[\.]?([a-zA-Z0-9]+)?[\@][a-z]{3,9}[\.][a-z]{2,5}/g;
-      if(e.target.value.match(pattern)){
-        this.setState({validMail: false});
-    }else 
-       this.setState({validMail: true});
+    componentDidMount() {
+      window.gapi.load('client:auth2', () => {
+        window.gapi.client
+          .init({
+            clientId:
+              '643813969333-9n2qurt1dprqt85d9peivckp2lul5gjr.apps.googleusercontent.com',
+            scope: 'email',
+          })
+          .then(() => {
+            this.auth = window.gapi.auth2.getAuthInstance();
+            this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+            this.auth.isSignedIn.listen(this.onAuthChange);
+          });
+      });
     }
+
+    onAuthChange = () => {
+      this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+    };
+  
+    onSignIn = () => {
+      this.auth.signIn();
+    };
+  
+    onSignOut = () => {
+      this.auth.signOut();
+    };
+  
+    renderAuthButton() {
+      if (this.state.isSignedIn === null) {
+        return null;
+      } else if (this.state.isSignedIn) {
+        return (<>
+
+          <button className="btn btn-google btn-block text-uppercase" onClick={this.onSignOut} ><i className="fab fa-google mr-2"></i> Sign Out</button>
+          
+              </>
+        );
+      } else {
+        return (
+            <>
+          <button className="btn btn-google btn-block text-uppercase" onClick={this.onSignIn} ><i className="fab fa-google mr-2"></i> Sign in with Google</button>
+        
+          </>
+        );
+      }
+    }
+
+    
     
     render(){
       return (
@@ -30,11 +73,10 @@ export default class Login extends React.Component{
             <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
               <div className="card card-signin my-5">
                 <div className="card-body">
-                <span style={{display:'block',textAlign: 'center'}}>sanketh@digio.in uses Gmail?</span>
+                <span style={{display:'block',textAlign: 'center'}}>salman@org.in uses Gmail?</span>
                 <br/>
-                  <span style={{display:'block',textAlign: 'center'}}>login using Gmail</span>
+                  {this.renderAuthButton()}
                   <br/>
-                <button className="btn btn-google btn-block text-uppercase" type="submit"><i className="fab fa-google mr-2"></i> Sign in with Google</button>
                 <h5><span>OR</span></h5>
                 <form className="form-signin">
                 <label>Proceed with your Email Address</label>
@@ -45,16 +87,16 @@ export default class Login extends React.Component{
                     />
                     <section style={{display:'flex'}}>
                     <input  type="checkbox" name="checkbox" value="value"/>
-                    <label>By Continuing, I confirm to the <b>Terms and Service</b> and <b>Private Policy</b>of <a href="#/licence.html">Diego.in</a></label>
+                    <label>By Continuing, I confirm to the <b>Terms and Service</b> and <b>Private Policy</b>of <a href="#/licence.html">Company</a></label>
                     </section>
                     
                   </div>
                   <br/>
-                   <Link to="/aadhar">
+                   <Link to="/currency">
                      <button className="btn btn-primary btn-block text-uppercase"
-                      disabled={this.state.validMail}
+                      disabled={!this.state.isSignedIn}
                       >
-                     Continue{this.state.validMail}
+                     Continue
                      </button>
                     </Link>
                 </form>
